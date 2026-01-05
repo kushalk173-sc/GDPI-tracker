@@ -6,21 +6,26 @@ import firebase_admin
 import os
 import json
 
+import streamlit as st
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+# Initialize Firebase
 if not firebase_admin._apps:
     try:
+        # Convert Streamlit secrets to a standard dictionary
         cred_info = dict(st.secrets["firebase"])
         
-        # Step 1: Replace literal backslash-n with actual newline
-        # Step 2: Strip any trailing spaces that might be causing the Byte(1624) error
-        fixed_key = cred_info["private_key"].replace("\\n", "\n").strip()
-        cred_info["private_key"] = fixed_key
+        # Ensure the private key handles newlines correctly
+        if "private_key" in cred_info:
+            cred_info["private_key"] = cred_info["private_key"].replace("\\n", "\n").strip()
         
         cred = credentials.Certificate(cred_info)
         firebase_admin.initialize_app(cred)
     except Exception as e:
-        st.error(f"CRITICAL: Firebase failed to load. Error: {e}")
-        st.stop()# Now it's safe to call the client
-        
+        st.error(f"Firebase failed to load: {e}")
+        st.stop()
+
 db = firestore.client()
 
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
