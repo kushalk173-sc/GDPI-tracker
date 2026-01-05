@@ -7,16 +7,16 @@ import os
 import json
 
 if not firebase_admin._apps:
-    if "FIREBASE_KEY" in os.environ:
-        # For Vercel deployment
-        key_dict = json.loads(os.environ.get("FIREBASE_KEY"))
-        cred = credentials.Certificate(key_dict)
-    else:
-        # For local testing
-        cred = credentials.Certificate('serviceAccountKey.json')
-    firebase_admin.initialize_app(cred)
-db = firestore.client()
+    # Get the dictionary from Streamlit secrets
+    try:
+        cred_info = st.secrets["firebase"]
+        # Convert the AttrDict to a standard Python dictionary
+        cred = credentials.Certificate(dict(cred_info))
+        firebase_admin.initialize_app(cred)
+    except KeyError:
+        st.error("Firebase secrets not found! Check your Streamlit Cloud settings.")
 
+db = firestore.client()
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
 LOGO_FILE = "image_a242cc.jpg"
 
