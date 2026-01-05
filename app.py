@@ -11,6 +11,7 @@ if not firebase_admin._apps:
     try:
         cred_info = st.secrets["firebase"]
         # Convert the AttrDict to a standard Python dictionary
+        cred_dict["private_key"] = cred_dict["private_key"].replace("\\n", "\n")
         cred = credentials.Certificate(dict(cred_info))
         firebase_admin.initialize_app(cred)
     except KeyError:
