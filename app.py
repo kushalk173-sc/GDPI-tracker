@@ -7,21 +7,22 @@ import os
 import json
 
 if not firebase_admin._apps:
-    cred_dict = dict(st.secrets["firebase"])
-    
-    # CLEAN THE KEY: 
-    # 1. Handle literal \n if they exist
-    # 2. Strip any accidental leading/trailing spaces added by the browser paste
-    clean_key = cred_dict["private_key"].replace("\\n", "\n").strip()
-    cred_dict["private_key"] = clean_key
-    
     try:
-        cred = credentials.Certificate(cred_dict)
+        cred_info = dict(st.secrets["firebase"])
+        
+        # Clean the key to remove hidden spaces or literal backslashes
+        clean_key = cred_info["private_key"].replace("\\n", "\n").strip()
+        cred_info["private_key"] = clean_key
+        
+        cred = credentials.Certificate(cred_info)
         firebase_admin.initialize_app(cred)
     except Exception as e:
-        st.error(f"Secret Loading Error: {e}")
+        st.error(f"CRITICAL: Firebase failed to load. Error: {e}")
+        st.stop()  # This stops the app here so it doesn't crash on the next line
 
+# Now it's safe to call the client
 db = firestore.client()
+
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
 LOGO_FILE = "image_a242cc.jpg"
 
