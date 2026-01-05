@@ -7,14 +7,17 @@ import os
 import json
 
 if not firebase_admin._apps:
-    # Get the dictionary from Streamlit secrets
-    try:
-        cred_info = st.secrets["firebase"]
-        # Convert the AttrDict to a standard Python dictionary
-        cred = credentials.Certificate(cred_info)
-        firebase_admin.initialize_app(cred)
-    except KeyError:
-        st.error("Firebase secrets not found! Check your Streamlit Cloud settings.")
+    # 1. Pull the secret and force it into a standard Python Dictionary
+    # Use .to_dict() or dict() to ensure it's not a string or AttrDict
+    cred_info = dict(st.secrets["firebase"])
+    
+    # 2. Safety check: Ensure the private key handles newlines correctly
+    if "\\n" in cred_info["private_key"]:
+        cred_info["private_key"] = cred_info["private_key"].replace("\\n", "\n")
+    
+    # 3. Pass the actual dictionary object to the credentials
+    cred = credentials.Certificate(cred_info)
+    firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
