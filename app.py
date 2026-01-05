@@ -114,16 +114,34 @@ else:
                 "Story 1", "Story 2", "Story 3", "Story 4", "Story 5"
             ]
 
+            MASTER_LABELS = [
+    "Academics", "Subject 1", "Subject 2", "", 
+    "Special Interests / Hobbies", "Activity 1", "Activity 2", "Activity 3", "", 
+    "Social Responsibility", "Activity 1", "", 
+    "Awareness", "Read Newspaper Daily", "Recent G.A Topics - Youtube Channel - Cut the Clutter", 
+    "About your school & college", "About your city", "About your state", "About your country", 
+    "Core Managerial Stories", "Story 1", "Story 2", "Story 3", "Story 4", "Story 5", 
+    "Personal Questions", "Work Experience"
+]
+
             if fb_doc.exists:
                 df = pd.DataFrame(fb_doc.to_dict()['data'])
             else:
                 df = pd.read_excel(EXCEL_FILE, sheet_name=sheet_name)
-                if sheet_name == "Work Experience":
+                
+                # NEW LOGIC FOR MASTER LABELS
+                # --- NEW LOGIC FOR MASTER LABELS ---
+                if sheet_name =="Master":
+                    first_column_name = df.columns[0]
+
+
+                if sheet_name == "Work Experience": 
                     # Map unique names to columns
                     df.columns = hardcoded_headers[:len(df.columns)]
                     # Remove the extra title row from Excel if it exists
                     if df.shape[0] > 0 and "Work Experience" in str(df.iloc[0, 1]):
                         df = df.iloc[1:].reset_index(drop=True)
+                        df = df.drop(columns=[first_column_name])
 
             # CLEANING: Fix 1.000000 formatting and remove 'nan'
             def clean_val(v):
