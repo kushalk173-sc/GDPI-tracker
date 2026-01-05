@@ -4,10 +4,16 @@ import openpyxl
 from firebase_admin import credentials, firestore
 import firebase_admin
 import os
+import json
 
-# --- 1. FIREBASE SETUP ---
 if not firebase_admin._apps:
-    cred = credentials.Certificate('serviceAccountKey.json')
+    if "FIREBASE_KEY" in os.environ:
+        # For Vercel deployment
+        key_dict = json.loads(os.environ.get("FIREBASE_KEY"))
+        cred = credentials.Certificate(key_dict)
+    else:
+        # For local testing
+        cred = credentials.Certificate('serviceAccountKey.json')
     firebase_admin.initialize_app(cred)
 db = firestore.client()
 
