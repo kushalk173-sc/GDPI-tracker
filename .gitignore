@@ -1,0 +1,12 @@
+# Firebase Secret
+serviceAccountKey.json
+erudite_app/serviceAccountKey.json
+
+# Python Virtual Environment
+venv/
+erudite_app/venv/
+
+# System and Cache
+.DS_Store
+__pycache__/
+*.pyc
