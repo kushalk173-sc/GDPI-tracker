@@ -7,17 +7,19 @@ import os
 import json
 
 if not firebase_admin._apps:
-    # 1. Pull the secret and force it into a standard Python Dictionary
-    # Use .to_dict() or dict() to ensure it's not a string or AttrDict
-    cred_info = dict(st.secrets["firebase"])
+    cred_dict = dict(st.secrets["firebase"])
     
-    # 2. Safety check: Ensure the private key handles newlines correctly
-    if "\\n" in cred_info["private_key"]:
-        cred_info["private_key"] = cred_info["private_key"].replace("\\n", "\n")
+    # CLEAN THE KEY: 
+    # 1. Handle literal \n if they exist
+    # 2. Strip any accidental leading/trailing spaces added by the browser paste
+    clean_key = cred_dict["private_key"].replace("\\n", "\n").strip()
+    cred_dict["private_key"] = clean_key
     
-    # 3. Pass the actual dictionary object to the credentials
-    cred = credentials.Certificate(cred_info)
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate(cred_dict)
+        firebase_admin.initialize_app(cred)
+    except Exception as e:
+        st.error(f"Secret Loading Error: {e}")
 
 db = firestore.client()
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
