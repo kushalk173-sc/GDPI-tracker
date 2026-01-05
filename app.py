@@ -10,17 +10,17 @@ if not firebase_admin._apps:
     try:
         cred_info = dict(st.secrets["firebase"])
         
-        # Clean the key to remove hidden spaces or literal backslashes
-        clean_key = cred_info["private_key"].replace("\\n", "\n").strip()
-        cred_info["private_key"] = clean_key
+        # Step 1: Replace literal backslash-n with actual newline
+        # Step 2: Strip any trailing spaces that might be causing the Byte(1624) error
+        fixed_key = cred_info["private_key"].replace("\\n", "\n").strip()
+        cred_info["private_key"] = fixed_key
         
         cred = credentials.Certificate(cred_info)
         firebase_admin.initialize_app(cred)
     except Exception as e:
         st.error(f"CRITICAL: Firebase failed to load. Error: {e}")
-        st.stop()  # This stops the app here so it doesn't crash on the next line
-
-# Now it's safe to call the client
+        st.stop()# Now it's safe to call the client
+        
 db = firestore.client()
 
 EXCEL_FILE = "P.I - Tool Kit.xlsx"
